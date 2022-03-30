@@ -1,8 +1,9 @@
 import { connect } from 'mongoose';
 
-const DB_URI = process.env.DB_URI || 'mongodb+srv://DanielLarrosa:Unarefacil123@dosmetaldb.sj2b2.mongodb.net/dos-metal-backend?retryWrites=true&w=majority';
+const DB_URI = process.env.DB_URI
 
 export const connectDB = () => {
+	if(!DB_URI) return console.log('no existe direccion de base de datos');
 	connect(DB_URI, () => {
 		console.log('database connected');
 	});
