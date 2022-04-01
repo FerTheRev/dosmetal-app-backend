@@ -8,6 +8,7 @@ const dayJS = dayjs();
 
 export const getTodayRetiros = async (req: Request, res: Response) => {
 	console.log('El usuario requirio los retiros del dia');
+	console.log(dayJS.format('M-YYYY'))
 	const month = await StockMonthRetirosModel.findOne({
 		month: dayJS.format('M-YYYY')
 	});
