@@ -30,6 +30,7 @@ export const addNewItemStock = async (req: Request, res: Response) => {
 export const retirarStock = async (req: Request, res: Response) => {
 	const [retiro, item] = req.body;
 	const dayJS = dayjs();
+	console.log('El usuario retirara stock')
 	try {
 		const itemFinded = await ItemStockModel.findById(item._id);
 		await ItemStockModel.findByIdAndUpdate(item._id, item);

@@ -3,6 +3,7 @@ import { Server } from 'socket.io';
 import { connectDB } from './database';
 import { WebSocketService } from './webSocket';
 
+
 const httpServer = server();
 connectDB();
 
@@ -16,4 +17,3 @@ const io = new Server(httpServer, {
 });
 
 WebSocketService(io);
-
