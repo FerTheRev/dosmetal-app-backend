@@ -27,9 +27,9 @@ export const getTodayRetiros = async (req: Request, res: Response) => {
 		});
 		newMonth.days.push(newDay._id);
 		await newMonth.save();
-		await newDay.save();
+		const todaySaved = await newDay.save();
 		console.log('Retiros del dia entregado')
-		return res.json(newMonth.populate('dayEvents'));
+		return res.json(todaySaved.populate('dayEvents'));
 	}
 
 	const today = await StockDayRetiroModel.findOne({
