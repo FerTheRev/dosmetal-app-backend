@@ -34,24 +34,35 @@ export function WebSocketService(io: Server) {
 			io.emit('[STOCK] item deleted', itemDeleted);
 		});
 
-		
-
 		//* RETIROS
-		const retiros = await getTodayRetiros();
-		const MonthsAndDayEvents = await getMonthWithDayEventsRetiros();
+		emitTodayEvents();
+		emitMonthAndDaysEvents()
+		// const retiros = await getTodayRetiros();
+		// const MonthsAndDayEvents = await getMonthWithDayEventsRetiros();
 
-		socket.on('[RETIROS] reload day events', () => {
-			console.log('Hay que recargar la lista de retiros')
-			setTimeout( async () => {
-				const r = await getTodayRetiros();
-			io.emit('[RETIROS] get Today', r);
-			}, 1000);
-		})
-		io.emit('[RETIROS] get Today', retiros);
-		io.emit('[RETIROS] get month and day events', MonthsAndDayEvents);
+		// socket.on('[RETIROS] reload day events', () => {
+		// 	console.log('Hay que recargar la lista de retiros');
+		// 	setTimeout(async () => {
+		// 		const r = await getTodayRetiros();
+		// 		io.emit('[RETIROS] get Today', r);
+		// 	}, 1000);
+		// });
+		// io.emit('[RETIROS] get Today', retiros);
+		// io.emit('[RETIROS] get month and day events', MonthsAndDayEvents);
 
 		socket.on('disconnect', () => {
 			console.log(`User disconnected, id => ${socket.id}`);
 		});
 	});
+
+	//***/*/*/*/*******///*/*/********/*/*/*/ */ */ */
+	async function emitTodayEvents() {
+		console.log('Emitiendo al usuario el dia de hoy');
+		const retiros = await getTodayRetiros();
+		io.emit('[RETIROS] get Today', retiros);
+	}
+	async function emitMonthAndDaysEvents() {
+		const MonthsAndDayEvents = await getMonthWithDayEventsRetiros();
+		io.emit('[RETIROS] get month and day events', MonthsAndDayEvents);
+	}
 }
