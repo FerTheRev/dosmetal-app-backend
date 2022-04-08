@@ -34,6 +34,12 @@ export function WebSocketService(io: Server) {
 			io.emit('[STOCK] item deleted', itemDeleted);
 		});
 
+		socket.on('[RETIROS] reload day events', () => {
+			setTimeout( async () => {
+				await emitTodayEvents();
+			}, 1000);
+		})
+
 		//* RETIROS
 		emitTodayEvents();
 		emitMonthAndDaysEvents();
