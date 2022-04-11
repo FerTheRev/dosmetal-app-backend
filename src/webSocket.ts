@@ -1,5 +1,4 @@
 import { Server } from 'socket.io';
-import { ItemStock } from './interface/ItemStock.interface';
 import { ItemStockModel } from './models/ItemStock.model';
 import {
 	getMonthWithDayEventsRetiros,
@@ -7,10 +6,8 @@ import {
 } from './services/retiros.service';
 import {
 	addWSNewItemStock,
-	agregarstockWS,
 	deleteWSItemStock,
 	editWSItemStock,
-	retirarStockWS
 } from './services/stock.service';
 
 export function WebSocketService(io: Server) {

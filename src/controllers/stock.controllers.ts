@@ -30,72 +30,94 @@ export const addNewItemStock = async (req: Request, res: Response) => {
 export const retirarStock = async (req: Request, res: Response) => {
 	const [retiro, item] = req.body;
 	const dayJS = dayjs();
-	console.log('El usuario retirara stock')
+	console.log('El usuario retirara stock');
 	try {
-		const itemFinded = await ItemStockModel.findById(item._id);
 		await ItemStockModel.findByIdAndUpdate(item._id, item);
-	} catch (error) {}
+	} catch (error) {
+		console.log('Error al actualizar item');
+		return;
+	}
 
-	console.log(dayJS.format('M'));
-	const ExistMonth = await StockMonthRetirosModel.findOne({
+	console.log(`Registrando retiro de stock del dia ${dayJS.format('DD-MM-YYYY')}`);
+	const month = await StockMonthRetirosModel.findOne({
 		month: dayJS.format('M-YYYY')
 	});
-	if (!ExistMonth) {
+	if (month) {
+		console.log(`[STOCK][RETIROS] El mes existe, verificando día ${dayJS.date()}`);
+		const day = await StockDayRetiroModel.findOne({
+			MonthID: month._id,
+			day: dayJS.date()
+		});
+		if (day) {
+			try {
+				console.log(`[STOCK][RETIROS] El dia existe, registrando retiro`);
+				const Event = new DayEventModel({
+					...retiro,
+					DayID: day._id
+				});
+				day.dayEvents.push(Event._id);
+				await day.save();
+				await Event.save();
+				console.log(`[STOCK][RETIROS] Retiro registrado con exito`);
+				return res.json({ success: true });
+			} catch (error) {
+				return res.status(500).json({ success: false });
+			}
+		}
+
 		try {
-			console.log('No existe el mes, creando mes....');
-			const newMonth = new StockMonthRetirosModel({
-				month: dayJS.format('M-YYYY')
-			});
+			console.log(
+				`[STOCK][RETIROS]El dia ${dayJS.format('DD-MM')} no existe, creando dia`
+			);
 			const newDay = new StockDayRetiroModel({
-				MonthID: newMonth._id,
-				day: dayJS.date()
+				MonthID: month._id,
+				day: dayJS.date(),
+				dayEvents: [],
+				timestamp: dayJS.valueOf()
 			});
-			const newDayEvent = new DayEventModel({
+			month.days.push(newDay._id);
+			const Event = new DayEventModel({
 				...retiro,
 				DayID: newDay._id
 			});
-
-			newDay.dayEvents.push(newDayEvent._id);
-			newMonth.days.push(newDay._id);
-
-			await newMonth.save();
+			newDay.dayEvents.push(Event._id);
+			await Event.save();
 			await newDay.save();
-			await newDayEvent.save();
+			await month.save();
+			console.log(`[STOCK][RETIROS] Retiro registrado con exito`);
 			return res.json({ success: true });
 		} catch (error) {
 			return res.status(500).json({ success: false });
 		}
 	}
-	console.log('Existe el mes, verificando que existe el dia');
-	const ExisteDay = await StockDayRetiroModel.findOne({
-		MonthID: ExistMonth._id,
-		day: dayJS.date()
+
+	console.log(
+		`[STOCK][RETIROS] El mes ${dayJS.format('MM-YYYY')} no existe, creando mes`
+	);
+	const newMonth = new StockMonthRetirosModel({
+		month: dayJS.format('MM-YYYY'),
+		days: [],
+		timeStamp: dayJS.valueOf()
 	});
-	if (ExisteDay) {
-		try {
-			console.log('Existe el dia, agregando evento al array...');
-			const newDayEvent = new DayEventModel({ DayID: ExisteDay._id, ...retiro });
-			ExisteDay.dayEvents.push(newDayEvent._id);
-			await newDayEvent.save();
-			await ExisteDay.save();
-			return res.json({ success: true });
-		} catch (error) {
-			return res.status(500).json({ success: false });
-		}
-	}
-	console.log('Existe el mes, pero no el dia');
+	console.log(`[STOCK][RETIROS] Creando dia ${dayJS.format('DD-MM')}`);
+	const newDay = new StockDayRetiroModel({
+		MonthID: newMonth._id,
+		day: dayJS.date(),
+		dayEvents: [],
+		timestamp: dayJS.valueOf()
+	});
+
+	newMonth.days.push(newMonth._id);
+	console.log(`[STOCK][RETIROS] Creando Evento`);
+	const Event = new DayEventModel({
+		DayID: newDay._id,
+		...retiro
+	});
+	newDay.dayEvents.push(Event._id);
 	try {
-		const newDay = new StockDayRetiroModel({
-			MonthID: ExistMonth._id,
-			day: dayJS.date()
-		});
-		const newDayEvent = new DayEventModel({
-			DayID: newDay._id,
-			...retiro
-		});
-		newDay.dayEvents.push(newDayEvent._id);
+		await Event.save();
 		await newDay.save();
-		await newDayEvent.save();
+		await newMonth.save();
 		return res.json({ success: true });
 	} catch (error) {
 		return res.status(500).json({ success: false });
