@@ -4,7 +4,7 @@ import { StockMonthRetirosModel } from '../models/Stock-Month-Retiros.model';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 
-const dayJS = dayjs(1652270596000).locale('es');
+const dayJS = dayjs().locale('es');
 
 export const getTodayRetiros = async () => {
 	console.log(
