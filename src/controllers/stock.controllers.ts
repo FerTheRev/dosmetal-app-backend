@@ -37,7 +37,7 @@ export const retirarStock = async (req: Request, res: Response) => {
 		item.cajas -= retiro.unidadesRetiradas.cajas;
 		item.unidades_sueltas -= retiro.unidadesRetiradas.unidades_sueltas;
 		item.total = item.unidades_por_caja * item.cajas + item.unidades_sueltas;
-		if (item.total < item.stockMinimo) item.necesitaRecargarStock = true;
+		if (item.total <= item.stockMinimo) item.necesitaRecargarStock = true;
 	} else {
 		return res
 			.status(500)
@@ -142,6 +142,7 @@ export const addStockToItem = async (req: Request, res: Response) => {
 		item.cajas += itemChanges.total_cajas;
 		item.unidades_sueltas += itemChanges.unidades_sueltas;
 		item.total = item.unidades_por_caja * item.cajas + item.unidades_sueltas;
+		if (item.total >= item.stockMinimo) item.necesitaRecargarStock = false;
 		await item.save();
 		return res.json({ success: 'ITEM actualizado correctamente' });
 	}
