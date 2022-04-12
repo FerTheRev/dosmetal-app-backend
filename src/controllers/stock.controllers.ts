@@ -28,14 +28,20 @@ export const addNewItemStock = async (req: Request, res: Response) => {
 
 //* Retirar stock de un item
 export const retirarStock = async (req: Request, res: Response) => {
-	const [retiro, item] = req.body;
+	const retiro = req.body;
 	const dayJS = dayjs();
-	console.log('El usuario retirara stock');
-	try {
-		await ItemStockModel.findByIdAndUpdate(item._id, item);
-	} catch (error) {
-		console.log('Error al actualizar item');
-		return;
+	console.log('[STOCK] Se requiere retirar stock');
+	const item = await ItemStockModel.findById(retiro.id);
+
+	if (item) {
+		item.cajas -= retiro.unidadesRetiradas.cajas;
+		item.unidades_sueltas -= retiro.unidadesRetiradas.unidades_sueltas;
+		item.total = item.unidades_por_caja * item.cajas + item.unidades_sueltas;
+		if (item.total < item.stockMinimo) item.necesitaRecargarStock = true;
+	} else {
+		return res
+			.status(500)
+			.json({ reason: 'Error al descontar stock, item inexistente' });
 	}
 
 	console.log(`Registrando retiro de stock del dia ${dayJS.format('DD-MM-YYYY')}`);
@@ -59,9 +65,9 @@ export const retirarStock = async (req: Request, res: Response) => {
 				await day.save();
 				await Event.save();
 				console.log(`[STOCK][RETIROS] Retiro registrado con exito`);
-				return res.json({ success: true });
+				return res.json({ success: 'Retiro exitoso' });
 			} catch (error) {
-				return res.status(500).json({ success: false });
+				return res.status(500).json({ reason: 'Error al retirar stock' });
 			}
 		}
 
@@ -85,9 +91,9 @@ export const retirarStock = async (req: Request, res: Response) => {
 			await newDay.save();
 			await month.save();
 			console.log(`[STOCK][RETIROS] Retiro registrado con exito`);
-			return res.json({ success: true });
+			return res.json({ success: `[STOCK][RETIROS] Retiro registrado con exito` });
 		} catch (error) {
-			return res.status(500).json({ success: false });
+			return res.status(500).json({ reason: 'Error al retirar stock' });
 		}
 	}
 
@@ -118,23 +124,28 @@ export const retirarStock = async (req: Request, res: Response) => {
 		await Event.save();
 		await newDay.save();
 		await newMonth.save();
-		return res.json({ success: true });
+		return res.json({ success: `[STOCK][RETIROS] Retiro registrado con exito` });
 	} catch (error) {
-		return res.status(500).json({ success: false });
+		return res.status(500).json({ reason: 'Error al retirar stock' });
 	}
 };
 
 //* Cargar stock a un item
 export const addStockToItem = async (req: Request, res: Response) => {
-	const item = req.body as ItemStock;
-	console.log(item.total);
-	const itemFounded = await ItemStockModel.findByIdAndUpdate(item._id, item);
-	if (itemFounded) {
-		await itemFounded.save();
-		return res.json({ success: true });
+	const itemChanges = req.body as {
+		id: string;
+		total_cajas: number;
+		unidades_sueltas: number;
+	};
+	const item = await ItemStockModel.findOne({ _id: itemChanges.id });
+	if (item) {
+		item.cajas += itemChanges.total_cajas;
+		item.unidades_sueltas += itemChanges.unidades_sueltas;
+		item.total = item.unidades_por_caja * item.cajas + item.unidades_sueltas;
+		await item.save();
+		return res.json({ success: 'ITEM actualizado correctamente' });
 	}
-
-	return res.status(500).json({ success: false });
+	return res.status(500).json({ reason: 'ITEM no encontrado' });
 };
 
 //* Editar metadatos de un item en el stock

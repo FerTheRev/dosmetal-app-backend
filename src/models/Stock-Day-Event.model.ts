@@ -8,7 +8,10 @@ interface IDayEvent {
 	obra: string;
 	producto: string;
 	ubicacion: string;
-	unidadesRetiradas: number;
+	unidadesRetiradas: {
+		cajas: Number;
+		unidades_sueltas: Number;
+	};
 }
 
 const DayEventSchema = new Schema<IDayEvent>(
@@ -19,7 +22,10 @@ const DayEventSchema = new Schema<IDayEvent>(
 		obra: String,
 		producto: String,
 		ubicacion: String,
-		unidadesRetiradas: Number
+		unidadesRetiradas: {
+			cajas: Number,
+			unidades_sueltas: Number
+		}
 	},
 	{
 		timestamps: true,

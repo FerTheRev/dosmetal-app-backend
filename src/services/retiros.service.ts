@@ -29,7 +29,9 @@ export const getTodayRetiros = async () => {
 			dayEvents: [],
 			timestamp: dayJS.valueOf()
 		});
+		month.days.push(newDay._id);
 		await newDay.save();
+		await month.save();
 		return await newDay.populate('DayEvents');
 	}
 	console.log('[RETIROS] Mes inexistente');
