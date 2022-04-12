@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
+import { model, Schema } from 'mongoose';
 import { ItemStock } from '../interface/ItemStock.interface';
+import { itemStockHistorySchema } from './itemStock-history.model';
 
 const ItemStockSchema = new Schema<ItemStock>(
 	{
@@ -14,7 +14,8 @@ const ItemStockSchema = new Schema<ItemStock>(
 		necesitaRecargarStock: Boolean,
 		stockMinimo: Number,
 		ubicacion: String,
-		image: String
+		image: String,
+		historial: [itemStockHistorySchema]
 	},
 	{
 		versionKey: false,
@@ -22,4 +23,4 @@ const ItemStockSchema = new Schema<ItemStock>(
 	}
 );
 
-export const ItemStockModel = mongoose.model<ItemStock>('Stock-item', ItemStockSchema);
+export const ItemStockModel = model<ItemStock>('Stock-item', ItemStockSchema);

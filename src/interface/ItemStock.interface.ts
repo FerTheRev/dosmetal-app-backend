@@ -1,3 +1,5 @@
+import { ItemStockHistory } from "../models/itemStock-history.model";
+
 export interface ItemStock {
 	_id?: string;
 	referencia: string;
@@ -11,4 +13,5 @@ export interface ItemStock {
 	stockMinimo: number;
 	ubicacion: string;
 	image: string;
+	historial: ItemStockHistory[]
 }

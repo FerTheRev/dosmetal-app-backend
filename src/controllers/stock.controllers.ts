@@ -8,6 +8,8 @@ import { StockMonthRetirosModel } from '../models/Stock-Month-Retiros.model';
 import { StockDayRetiroModel } from '../models/Stock-day-retiros.model';
 import { DayEventModel } from '../models/Stock-Day-Event.model';
 
+const dayJS = dayjs();
+
 //* Recuperar todo el stock disponible
 export const getAllStock = async (req: Request, res: Response) => {
 	const items = await ItemStockModel.find();
@@ -28,8 +30,20 @@ export const addNewItemStock = async (req: Request, res: Response) => {
 
 //* Retirar stock de un item
 export const retirarStock = async (req: Request, res: Response) => {
-	const retiro = req.body;
-	const dayJS = dayjs();
+	const retiro: {
+		id: string;
+		unidadesRetiradas: {
+			cajas: number;
+			unidades_sueltas: number;
+		};
+		producto: string;
+		obra: string;
+		empleado: string;
+		timestamp: number;
+		estado: string;
+		ubicacion: string;
+	} = req.body;
+
 	console.log('[STOCK] Se requiere retirar stock');
 	const item = await ItemStockModel.findById(retiro.id);
 
@@ -37,7 +51,13 @@ export const retirarStock = async (req: Request, res: Response) => {
 		item.cajas -= retiro.unidadesRetiradas.cajas;
 		item.unidades_sueltas -= retiro.unidadesRetiradas.unidades_sueltas;
 		item.total = item.unidades_por_caja * item.cajas + item.unidades_sueltas;
+		item.historial.push({
+			date: dayJS.valueOf(),
+			detail: `Se han retirado ${retiro.unidadesRetiradas.cajas} cajas
+			 y/o ${retiro.unidadesRetiradas.unidades_sueltas} unidades sueltas, RESTAN: ${item.total} sumando todo.`
+		});
 		if (item.total <= item.stockMinimo) item.necesitaRecargarStock = true;
+		await item.save();
 	} else {
 		return res
 			.status(500)
@@ -142,7 +162,13 @@ export const addStockToItem = async (req: Request, res: Response) => {
 		item.cajas += itemChanges.total_cajas;
 		item.unidades_sueltas += itemChanges.unidades_sueltas;
 		item.total = item.unidades_por_caja * item.cajas + item.unidades_sueltas;
+		item.historial.push({
+			date: dayJS.valueOf(),
+			detail: `Se ha agregado un total de ${itemChanges.total_cajas} cajas y/o
+			 ${itemChanges.unidades_sueltas} unidades sueltas a este item, ahora hay un total de ${item.total} sumando todo.`
+		});
 		if (item.total >= item.stockMinimo) item.necesitaRecargarStock = false;
+		console.log(item);
 		await item.save();
 		return res.json({ success: 'ITEM actualizado correctamente' });
 	}
@@ -162,4 +188,14 @@ export const editItemStock = async (req: Request, res: Response) => {
 	} catch (error) {
 		return res.json({ error: 'Error al actualizar item' });
 	}
+};
+
+//* Obtener el historial de un item
+export const getHistoryItem = async (req: Request, res: Response) => {
+	const item = await ItemStockModel.findById(req.params.id);
+	if (item) {
+		const { historial } = item;
+		return res.json({ historial });
+	}
+	return res.status(500).json({ reason: 'Item Inexistente' });
 };

@@ -5,6 +5,8 @@ export const StockRoutes = Router();
 
 StockRoutes.get('/', StockController.getAllStock);
 
+StockRoutes.get('/history/:id', StockController.getHistoryItem)
+
 StockRoutes.post('/', StockController.addNewItemStock);
 
 StockRoutes.post('/retirar', StockController.retirarStock);
