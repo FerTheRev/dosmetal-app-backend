@@ -13,7 +13,9 @@ export const getTodayRetiros = async () => {
 		month: dayJS.format('M-YYYY')
 	});
 	if (month) {
-		console.log(`[RETIROS] El mes existe, verificando que exista el dia de hoy : ${dayJS.date()}`);
+		console.log(
+			`[RETIROS] El mes existe, verificando que exista el dia de hoy : ${dayJS.date()}`
+		);
 		const day = await StockDayRetiroModel.findOne({
 			MonthID: month._id,
 			day: dayJS.date()
@@ -22,6 +24,9 @@ export const getTodayRetiros = async () => {
 			console.log(`[RETIROS] El dia ${dayJS.format('DD-MM')} existe`);
 			return await day.populate('dayEvents');
 		}
+		console.log(
+			`[RETIROS] No existe el dia, creando el dia de hoy ${dayJS.format('DD-MM')}`
+		);
 		const newDay = new StockDayRetiroModel({
 			MonthID: month._id,
 			day: dayJS.date(),
@@ -31,7 +36,8 @@ export const getTodayRetiros = async () => {
 		month.days.push(newDay._id);
 		await newDay.save();
 		await month.save();
-		return await newDay.populate('DayEvents');
+		console.log(`[RETIROS] Dia ${dayJS.format('DD-MM')} creado con exito`);
+		return newDay;
 	}
 	console.log('[RETIROS] Mes inexistente');
 	console.log('[RETIROS] Creando mes');
@@ -50,7 +56,7 @@ export const getTodayRetiros = async () => {
 	newMonth.days.push(newDay._id);
 	await newDay.save();
 	await newMonth.save();
-	return newDay.populate('dayEvents');
+	return newDay;
 };
 
 export const getMonthWithDayEventsRetiros = async () => {
