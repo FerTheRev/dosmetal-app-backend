@@ -1,5 +1,4 @@
 import { StockDayRetiroModel } from '../models/Stock-day-retiros.model';
-import { DayEventModel } from '../models/Stock-Day-Event.model';
 import { StockMonthRetirosModel } from '../models/Stock-Month-Retiros.model';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
@@ -8,13 +7,13 @@ const dayJS = dayjs().locale('es');
 
 export const getTodayRetiros = async () => {
 	console.log(
-		`[RETIROS] Se requirio los retiros del dia de hoy ${dayJS.format('M-YYYY')}`
+		`[RETIROS] Se requirio los retiros del dia de hoy ${dayJS.format('DD-MM-YYYY')}`
 	);
 	const month = await StockMonthRetirosModel.findOne({
 		month: dayJS.format('M-YYYY')
 	});
 	if (month) {
-		console.log('[RETIROS] El mes existe, verificando dia');
+		console.log(`[RETIROS] El mes existe, verificando que exista el dia de hoy : ${dayJS.date()}`);
 		const day = await StockDayRetiroModel.findOne({
 			MonthID: month._id,
 			day: dayJS.date()
