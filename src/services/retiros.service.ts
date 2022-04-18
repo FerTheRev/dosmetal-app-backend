@@ -3,9 +3,11 @@ import { StockMonthRetirosModel } from '../models/Stock-Month-Retiros.model';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 
-const dayJS = dayjs().locale('es');
+
 
 export const getTodayRetiros = async () => {
+	const dayJS = dayjs().locale('es');
+	
 	console.log(
 		`[RETIROS] Se requirio los retiros del dia de hoy ${dayJS.format('DD-MM-YYYY')}`
 	);

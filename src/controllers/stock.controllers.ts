@@ -8,7 +8,7 @@ import { StockMonthRetirosModel } from '../models/Stock-Month-Retiros.model';
 import { StockDayRetiroModel } from '../models/Stock-day-retiros.model';
 import { DayEventModel } from '../models/Stock-Day-Event.model';
 
-const dayJS = dayjs();
+
 
 //* Recuperar todo el stock disponible
 export const getAllStock = async (req: Request, res: Response) => {
@@ -30,6 +30,8 @@ export const addNewItemStock = async (req: Request, res: Response) => {
 
 //* Retirar stock de un item
 export const retirarStock = async (req: Request, res: Response) => {
+	const dayJS = dayjs();
+
 	const retiro: {
 		id: string;
 		unidadesRetiradas: {
@@ -152,6 +154,8 @@ export const retirarStock = async (req: Request, res: Response) => {
 
 //* Cargar stock a un item
 export const addStockToItem = async (req: Request, res: Response) => {
+	const dayJS = dayjs();
+	
 	const itemChanges = req.body as {
 		id: string;
 		total_cajas: number;
