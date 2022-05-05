@@ -3,6 +3,8 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { StockRoutes } from './routes/stock.routes';
 import { RetirosRoutes } from './routes/retiros.routes';
+import path from 'path'
+import { PerfilesRouter } from './routes/perfiles.routes';
 
 const app = express();
 
@@ -18,6 +20,10 @@ app.use(morgan('dev'));
 //* Routes
 app.use('/dosmetal/api/stock', StockRoutes);
 app.use('/dosmetal/api/retiros', RetirosRoutes);
+app.use('/dosmetal/api/perfiles', PerfilesRouter)
+
+//* Public
+// app.use(express.static(path.join(__dirname, 'public')));
 
 //* Start
 export const server = () => {
