@@ -3,29 +3,29 @@ import { Schema } from 'mongoose';
 
 interface IDayEvent {
 	DayID: string;
-	empleado: string;
-	estado: string[];
-	obra: string;
-	producto: string;
-	ubicacion: string;
-	unidadesRetiradas: {
-		cajas: Number;
-		unidades_sueltas: Number;
-	};
+	paraQuienRetira: string;
+	nombreQuienRetira: string;
+	itemsRetirados: {
+		nombre: string;
+		referencia: string;
+		retiro: {
+			cantidadQueRetira: number;
+		};
+	}[];
 }
 
 const DayEventSchema = new Schema<IDayEvent>(
 	{
 		DayID: String,
-		empleado: String,
-		estado: [String],
-		obra: String,
-		producto: String,
-		ubicacion: String,
-		unidadesRetiradas: {
-			cajas: Number,
-			unidades_sueltas: Number
-		}
+		paraQuienRetira: String,
+		nombreQuienRetira: String,
+		itemsRetirados: [
+			{
+				nombre: String,
+				referencia: String,
+				retiro: Number
+			}
+		]
 	},
 	{
 		timestamps: true,

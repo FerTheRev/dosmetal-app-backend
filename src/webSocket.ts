@@ -1,41 +1,24 @@
-import { Server } from 'socket.io';
-import { ItemStockModel } from './models/ItemStock.model';
+import { Server, Socket } from 'socket.io';
+import { InventoryModel } from './models/inventario-item.model';
 import {
 	getMonthWithDayEventsRetiros,
 	getTodayRetiros
 } from './services/retiros.service';
-import {
-	addWSNewItemStock,
-	deleteWSItemStock,
-	editWSItemStock,
-} from './services/stock.service';
+
+export let SoConn: Server
 
 export function WebSocketService(io: Server) {
 	io.on('connection', async (socket) => {
+		SoConn = io;
 		console.log(`User connected, id => ${socket.id}`);
-		const items = await ItemStockModel.find();
-		io.emit('[STOCK] get stock', items);
+		const inventory = await InventoryModel.find();
+		io.emit('[Inventory] get all inventory', inventory);
 
-		socket.on('[STOCK] add item', async (data) => {
-			const item = await addWSNewItemStock(data);
-			io.emit('[STOCK] new item added', item);
+		socket.on('[Inventory] inform inventory changes', async () => {
+			console.log('[Inventory] INFORMANDO CAMBIOS EN EL INVENTARIO');
+			const inventoryUpdated = await InventoryModel.find();
+			socket.broadcast.emit('[Inventory] changes on inventory', inventoryUpdated);
 		});
-
-		socket.on('[STOCK] item modified', async (data) => {
-			const itemModified = await editWSItemStock(data);
-			io.emit('[STOCK] item modified', itemModified);
-		});
-
-		socket.on('[STOCK] delete item', async (itemID: string) => {
-			const itemDeleted = await deleteWSItemStock(itemID);
-			io.emit('[STOCK] item deleted', itemDeleted);
-		});
-
-		socket.on('[RETIROS] reload day events', () => {
-			setTimeout( async () => {
-				await emitTodayEvents();
-			}, 1000);
-		})
 
 		//* RETIROS
 		emitTodayEvents();
